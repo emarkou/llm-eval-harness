@@ -56,3 +56,48 @@ class EvalConfig(BaseModel):
     judge_provider: Literal["openai", "anthropic"]
     judge_model: str
     max_tokens: int = 1024
+
+
+# ---------------------------------------------------------------------------
+# RAG models
+# ---------------------------------------------------------------------------
+
+
+class Chunk(BaseModel):
+    chunk_id: str
+    doc_name: str
+    text: str
+    embedding: list[float] | None = None
+
+
+class DimensionScore(BaseModel):
+    score: float = Field(ge=0.0, le=1.0)
+    reasoning: str
+
+
+class RAGScore(BaseModel):
+    context_relevance: DimensionScore
+    faithfulness: DimensionScore
+    answer_relevance: DimensionScore
+
+
+class RAGResult(BaseModel):
+    case_id: str
+    question: str
+    retrieved_chunks: list[Chunk]
+    answer: str
+    scores: RAGScore | None = None
+    error: str | None = None
+
+
+class RAGCase(BaseModel):
+    id: str
+    question: str
+    expected: str | None = None
+    notes: str | None = None
+
+
+class RAGSuite(BaseModel):
+    suite_name: str
+    description: str = ""
+    cases: list[RAGCase]
