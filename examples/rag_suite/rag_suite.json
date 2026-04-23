@@ -1,0 +1,42 @@
+{
+  "suite_name": "vectordb_lite_rag_suite",
+  "description": "Tests RAG over VectorDB Lite documentation. Covers direct retrieval, multi-chunk synthesis, and out-of-corpus faithfulness.",
+  "cases": [
+    {
+      "id": "direct-default-metric",
+      "question": "What is the default similarity metric used by VectorDB Lite?",
+      "expected": "cosine",
+      "notes": "Directly stated in configuration.md — tests clean single-chunk retrieval."
+    },
+    {
+      "id": "direct-verify-install",
+      "question": "What command can I run to verify that VectorDB Lite is installed correctly?",
+      "expected": "python -c \"import vectordb_lite; print(vectordb_lite.__version__)\"",
+      "notes": "Directly stated in installation.md — tests code-snippet retrieval."
+    },
+    {
+      "id": "combine-python-version-and-data-dir",
+      "question": "What Python version does VectorDB Lite require, and where does it store its index files by default?",
+      "expected": "Python 3.10 or higher; default data directory is ~/.vectordb_lite/data",
+      "notes": "Both facts are in installation.md but in different paragraphs — tests within-document chunk combination."
+    },
+    {
+      "id": "combine-hnsw-params-and-capacity",
+      "question": "What are the default ef_construction and m values for the HNSW index, and how many vectors can it hold?",
+      "expected": "ef_construction=200, m=16; up to 10 million vectors",
+      "notes": "ef_construction/m are in configuration.md; the 10M capacity limit is in limitations.md — tests cross-document synthesis."
+    },
+    {
+      "id": "not-in-corpus-streaming",
+      "question": "Does VectorDB Lite support real-time streaming ingestion of vectors?",
+      "expected": null,
+      "notes": "Streaming ingestion is NOT mentioned anywhere in the corpus. The model should acknowledge it doesn't know."
+    },
+    {
+      "id": "not-in-corpus-cloud-pricing",
+      "question": "What is the pricing for VectorDB Lite cloud hosting?",
+      "expected": null,
+      "notes": "No cloud hosting or pricing information exists in the corpus. High-faithfulness model should say it doesn't know."
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from llm_eval_harness.models import EvalResult
+from llm_eval_harness.models import EvalResult, RAGResult
 
 try:
     from rich.console import Console
@@ -104,4 +104,115 @@ def _print_plain(
             f"Avg Correctness: {_fmt(avg_c)}  |  "
             f"Avg Relevance: {_fmt(avg_r)}  |  "
             f"Avg Format Compliance: {_fmt(avg_f)}"
+        )
+
+
+# ---------------------------------------------------------------------------
+# RAG reporter
+# ---------------------------------------------------------------------------
+
+
+def print_rag_results(results: list[RAGResult]) -> None:
+    scored = [r for r in results if r.scores is not None]
+    failed = [r for r in results if r.error is not None]
+
+    if _RICH:
+        _print_rag_rich(results, scored, failed)
+    else:
+        _print_rag_plain(results, scored, failed)
+
+
+def _reasoning_summary(r: RAGResult) -> str:
+    if r.scores is None:
+        return ""
+    parts = [
+        f"CTX: {r.scores.context_relevance.reasoning}",
+        f"FAITH: {r.scores.faithfulness.reasoning}",
+        f"ANS: {r.scores.answer_relevance.reasoning}",
+    ]
+    return " | ".join(parts)
+
+
+def _print_rag_rich(
+    results: list[RAGResult],
+    scored: list[RAGResult],
+    failed: list[RAGResult],
+) -> None:
+    console = Console()
+
+    table = Table(title="RAG Evaluation Results", show_lines=True)
+    table.add_column("ID", style="bold cyan", no_wrap=True)
+    table.add_column("Ctx Rel", justify="center")
+    table.add_column("Faithful", justify="center")
+    table.add_column("Ans Rel", justify="center")
+    table.add_column("Reasoning summary")
+    table.add_column("Error", style="red")
+
+    for r in results:
+        if r.scores:
+            s = r.scores
+            table.add_row(
+                r.case_id,
+                _fmt(s.context_relevance.score),
+                _fmt(s.faithfulness.score),
+                _fmt(s.answer_relevance.score),
+                _reasoning_summary(r),
+                "",
+            )
+        else:
+            table.add_row(r.case_id, "-", "-", "-", "", r.error or "unknown error")
+
+    console.print(table)
+
+    if scored:
+        n = len(scored)
+        avg_cr = sum(r.scores.context_relevance.score for r in scored) / n
+        avg_fa = sum(r.scores.faithfulness.score for r in scored) / n
+        avg_ar = sum(r.scores.answer_relevance.score for r in scored) / n
+
+        summary = Table(title="RAG Summary", show_header=False)
+        summary.add_column("Metric", style="bold")
+        summary.add_column("Value", justify="right")
+        summary.add_row("Evaluated", str(n))
+        summary.add_row("Failed", str(len(failed)))
+        summary.add_row("Avg Context Relevance", _fmt(avg_cr))
+        summary.add_row("Avg Faithfulness", _fmt(avg_fa))
+        summary.add_row("Avg Answer Relevance", _fmt(avg_ar))
+        console.print(summary)
+
+
+def _print_rag_plain(
+    results: list[RAGResult],
+    scored: list[RAGResult],
+    failed: list[RAGResult],
+) -> None:
+    header = f"{'ID':<28} {'CtxRel':>7} {'Faith':>7} {'AnsRel':>7}  Reasoning summary"
+    print("\n=== RAG Evaluation Results ===")
+    print(header)
+    print("-" * len(header))
+
+    for r in results:
+        if r.scores:
+            s = r.scores
+            summary = _reasoning_summary(r)[:80]
+            print(
+                f"{r.case_id:<28} {_fmt(s.context_relevance.score):>7}"
+                f" {_fmt(s.faithfulness.score):>7} {_fmt(s.answer_relevance.score):>7}"
+                f"  {summary}"
+            )
+        else:
+            print(f"{r.case_id:<28} {'ERR':>7} {'ERR':>7} {'ERR':>7}  {r.error}")
+
+    if scored:
+        n = len(scored)
+        avg_cr = sum(r.scores.context_relevance.score for r in scored) / n
+        avg_fa = sum(r.scores.faithfulness.score for r in scored) / n
+        avg_ar = sum(r.scores.answer_relevance.score for r in scored) / n
+
+        print("\n=== RAG Summary ===")
+        print(f"Evaluated : {n}  |  Failed : {len(failed)}")
+        print(
+            f"Avg Context Relevance: {_fmt(avg_cr)}  |  "
+            f"Avg Faithfulness: {_fmt(avg_fa)}  |  "
+            f"Avg Answer Relevance: {_fmt(avg_ar)}"
         )

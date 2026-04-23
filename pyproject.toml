@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "llm-eval-harness"
-version = "0.1.0"
+version = "0.2.0"
 description = "Lightweight CLI + library for evaluating LLM application outputs"
 requires-python = ">=3.11"
 dependencies = [
@@ -13,6 +13,8 @@ dependencies = [
     "anthropic>=0.40",
     "openai>=1.50",
     "rich>=13",
+    "voyageai>=0.3",
+    "numpy>=1.26",
 ]
 
 [project.scripts]
