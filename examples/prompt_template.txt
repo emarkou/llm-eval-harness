@@ -1,0 +1,4 @@
+Answer the following question concisely and accurately. Provide only the answer with no preamble.
+
+Question: {question}
+Answer:

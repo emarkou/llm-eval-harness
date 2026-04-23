@@ -1,0 +1,42 @@
+{
+  "suite_name": "ai_engineer_suite",
+  "description": "Test cases targeting common failure modes in LLM applications: hallucination, format compliance, instruction following, and structured output.",
+  "prompt_template": "{question}",
+  "output_schema": {
+    "type": "string",
+    "max_length": 300,
+    "format": "plain text, no markdown, no preamble"
+  },
+  "cases": [
+    {
+      "id": "rag-acronym-direct",
+      "question": "What does RAG stand for in the context of LLMs?",
+      "expected": "Retrieval-Augmented Generation"
+    },
+    {
+      "id": "rag-acronym-indirect",
+      "question": "In modern AI pipelines, there is a technique that combines retrieval with generation. What is its acronym?",
+      "expected": "Retrieval-Augmented Generation"
+    },
+    {
+      "id": "hallucination-httpx-timeout",
+      "question": "What is the default timeout value in the Python httpx library? Give only the value and unit.",
+      "expected": "5 seconds"
+    },
+    {
+      "id": "hallucination-pytest-verbose",
+      "question": "What does the --verbose flag do in pytest? One sentence, no preamble.",
+      "expected": "It increases the verbosity of test output, showing individual test names and their pass/fail status instead of just dots."
+    },
+    {
+      "id": "code-constraint-oneliner",
+      "question": "Write a Python one-liner to flatten one level of a nested list. Return only the code, no explanation.",
+      "expected": "[item for sublist in nested for item in sublist]"
+    },
+    {
+      "id": "structured-output-json",
+      "question": "Return a JSON object with two keys: 'model_type' set to 'transformer' and 'year_introduced' set to 1706. Return only the raw JSON, no markdown fences, no explanation.",
+      "expected": "{\"model_type\": \"transformer\", \"year_introduced\": 1706}"
+    }
+  ]
+}
